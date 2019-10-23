@@ -1,12 +1,74 @@
 import React, { Component } from 'react';
-import Post from './Post';
+import InstaService from '../services/instaService';
+import User from './User';
+import ErrorMassage from './Error';
+//import Post from './Post';
 
 
 export default class Posts extends Component {
+
+    InstaService = new InstaService();
+    state = {
+        posts: [],
+        error: false
+    }
+
+    componentDidMount() {
+        this.updatePosts();
+    }
+
+    updatePosts() {
+        this.InstaService.getAllPosts()
+            .then(this.onPostsLoaded)
+            .catch(this.onError);
+    }
+
+    onPostsLoaded = (posts) => {
+        this.setState({
+            posts: posts,
+            error: false
+        })
+    }
+
+    onError = () => {
+        this.setState({
+            error: true
+        })
+    }
+
+    renderItems(arr) {
+        return arr.map(item => {
+            const { src, name, altname, photo, alt, descr, id } = item;
+            return (
+                <div key={id} className="post">
+                    <User src={photo}
+                        alt={altname}
+                        name={name}
+                        min />
+                    <img src={src} alt={alt}>
+                    </img>
+                    <div className="post__name">
+                        {name}
+                    </div>
+                    <div className="post__descr">
+                        {descr}
+                    </div>
+
+                </div>
+            )
+        });
+    }
+
     render() {
+        const { error, posts } = this.state;
+
+        if (error) {
+            return <ErrorMassage />
+        }
+        const items = this.renderItems(posts);
         return (
             <div className="left">
-                <Post src="https://1.bp.blogspot.com/-THVoNQnUEWM/Wife0r4tgxI/AAAAAAAAB7E/SuLkImPPxkQ6AU3Y20b2K8qk7GThhYGdQCLcBGAs/s1600/2576840087.jpg" alt="inst" />
+                {items}
 
             </div>
         )
